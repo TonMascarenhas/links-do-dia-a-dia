@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkHub — Seus Links, Organizados</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fa-solid fa-link"></i>
+        <span>LinkHub</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-view="dashboard">
+        <i class="fa-solid fa-house"></i> Dashboard
+      </button>
+      <button class="nav-item" data-view="all">
+        <i class="fa-solid fa-globe"></i> Todos os Links
+      </button>
+      <button class="nav-item" data-view="favorites">
+        <i class="fa-solid fa-star"></i> Favoritos
+      </button>
+    </nav>
+
+    <div class="sidebar-categories">
+      <p class="sidebar-section-title">Categorias</p>
+      <div id="categoriesList"></div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn-icon-text" id="importBtn">
+        <i class="fa-solid fa-file-import"></i> Importar
+      </button>
+      <button class="btn-icon-text" id="exportBtn">
+        <i class="fa-solid fa-file-export"></i> Exportar
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===== OVERLAY ===== -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Buscar links..." />
+          <button class="search-clear" id="searchClear">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Alternar tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="btn-primary" id="addLinkBtn">
+          <i class="fa-solid fa-plus"></i>
+          <span>Adicionar</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content" id="content">
+
+      <!-- DASHBOARD VIEW -->
+      <div id="dashboardView" class="view active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-link"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotal">0</span>
+              <span class="stat-label">Total de Links</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon yellow"><i class="fa-solid fa-star"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statFavorites">0</span>
+              <span class="stat-label">Favoritos</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-tag"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCategories">0</span>
+              <span class="stat-label">Categorias</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple"><i class="fa-solid fa-fire"></i></div>
+            <div class="stat-info">
+              <span class="stat-value" id="statMostUsed">—</span>
+              <span class="stat-label">Mais Acessado</span>
+            </div>
+          </div>
+        </div>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Mais Acessados</h2>
+            <span class="section-badge" id="topBadge">Top 6</span>
+          </div>
+          <div class="links-grid" id="topLinks"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2>Adicionados Recentemente</h2>
+          </div>
+          <div class="links-grid" id="recentLinks"></div>
+        </section>
+
+        <section class="section">
+          <div class="section-header">
+            <h2><i class="fa-solid fa-star" style="color:var(--yellow)"></i> Favoritos</h2>
+          </div>
+          <div class="links-grid" id="favoritesPreview"></div>
+        </section>
+      </div>
+
+      <!-- ALL LINKS VIEW -->
+      <div id="allView" class="view">
+        <div class="filter-bar">
+          <div class="filter-chips" id="filterChips"></div>
+          <div class="sort-select-wrapper">
+            <label>Ordenar por:</label>
+            <select id="sortSelect">
+              <option value="manual">Manual</option>
+              <option value="frequency">Mais acessados</option>
+              <option value="name">Nome (A-Z)</option>
+              <option value="newest">Mais recentes</option>
+            </select>
+          </div>
+        </div>
+        <div class="links-grid" id="allLinks"></div>
+        <p class="empty-state" id="allEmpty" style="display:none">
+          <i class="fa-solid fa-box-open"></i><br/>Nenhum link encontrado.
+        </p>
+      </div>
+
+      <!-- FAVORITES VIEW -->
+      <div id="favoritesView" class="view">
+        <div class="links-grid" id="favoritesLinks"></div>
+        <p class="empty-state" id="favEmpty" style="display:none">
+          <i class="fa-solid fa-star"></i><br/>Você ainda não favoritou nenhum link.
+        </p>
+      </div>
+
+      <!-- CATEGORY VIEW -->
+      <div id="categoryView" class="view">
+        <div class="links-grid" id="categoryLinks"></div>
+        <p class="empty-state" id="catEmpty" style="display:none">
+          <i class="fa-solid fa-folder-open"></i><br/>Nenhum link nesta categoria.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ===== MODAL: ADD/EDIT LINK ===== -->
+  <div class="modal-backdrop" id="linkModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Adicionar Link</h3>
+        <button class="modal-close" id="modalClose">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="linkForm">
+          <div class="form-group">
+            <label for="fieldTitle">Título *</label>
+            <input type="text" id="fieldTitle" placeholder="Ex: Google Drive" required />
+          </div>
+          <div class="form-group">
+            <label for="fieldUrl">URL *</label>
+            <div class="input-with-icon">
+              <input type="url" id="fieldUrl" placeholder="https://..." required />
+              <button type="button" class="btn-fetch-favicon" id="fetchFavicon" title="Buscar ícone do site">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+            </div>
+            <span class="field-hint">Cole a URL e clique na varinha para buscar o ícone automaticamente.</span>
+          </div>
+          <div class="form-group">
+            <label for="fieldCategory">Categoria *</label>
+            <div class="category-select-wrapper">
+              <select id="fieldCategory" required>
+                <option value="">Selecione...</option>
+                <option value="trabalho">💼 Trabalho</option>
+                <option value="estudos">📚 Estudos</option>
+                <option value="entretenimento">🎮 Entretenimento</option>
+                <option value="bancos">🏦 Bancos</option>
+                <option value="compras">🛒 Compras</option>
+                <option value="redes-sociais">📱 Redes Sociais</option>
+                <option value="noticias">📰 Notícias</option>
+                <option value="outros">📎 Outros</option>
+              </select>
+              <button type="button" class="btn-new-category" id="newCategoryBtn" title="Nova categoria">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-group" id="newCategoryGroup" style="display:none">
+            <label for="fieldNewCategory">Nome da nova categoria</label>
+            <input type="text" id="fieldNewCategory" placeholder="Ex: Ferramentas" />
+          </div>
+          <div class="form-group">
+            <label for="fieldIcon">Ícone (emoji ou URL de imagem)</label>
+            <input type="text" id="fieldIcon" placeholder="Ex: 🔗 ou https://..." />
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="fieldFavorite" />
+              Marcar como favorito
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancelModal">Cancelar</button>
+            <button type="submit" class="btn-primary" id="saveBtn">Salvar Link</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: CONFIRM DELETE ===== -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Excluir Link</h3>
+        <button class="modal-close" id="deleteModalClose">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir este link? Esta ação não pode ser desfeita.</p>
+        <div class="form-actions">
+          <button class="btn-secondary" id="cancelDelete">Cancelar</button>
+          <button class="btn-danger" id="confirmDelete">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ===== IMPORT INPUT ===== -->
+  <input type="file" id="importInput" accept=".json,.csv" style="display:none" />
+
+  <script src="js/app.js"></script>
+</body>
+</html>
